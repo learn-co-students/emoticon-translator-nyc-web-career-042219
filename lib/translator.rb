@@ -1,13 +1,33 @@
 # require modules here
+require "yaml"
 
-def load_library
-  # code goes here
+def load_library(file_path)
+  lib = YAML.load_file(file_path) #* Load the file
+  translator = { "get_meaning" => {}, "get_emoticon" => {} } #* new hash to return
+  lib.each do |meaning, emoticon_array| #* meaning = "angel", "angry", etc  emoticon_array = [english emote, japanese emote]
+    emoticon_array.each_with_index do |emoticon, index|
+      if index == 1
+        translator["get_meaning"][emoticon] = meaning #* index 1 contains the japanese emoticon.
+      elsif index == 0
+        translator["get_emoticon"] [emoticon] = emoticon_array[1] #*index 0 contains the english emoticon that we point to the japanese one.
+      end
+    end
+  end
+  translator
 end
 
-def get_japanese_emoticon
-  # code goes here
+def get_japanese_emoticon(yaml_file_path, emoticon)
+  translator = load_library(yaml_file_path)
+  translator["get_emoticon"].each do |english_emote, japanese_emote|
+    return japanese_emote if english_emote == emoticon
+  end
+  "Sorry, that emoticon was not found"
 end
 
-def get_english_meaning
-  # code goes here
+def get_english_meaning(yaml_file_path, emoticon)
+  translator = load_library(yaml_file_path)
+  translator["get_meaning"].each do |japanese_emote, meaning|
+    return meaning if japanese_emote == emoticon
+  end
+  "Sorry, that emoticon was not found"
 end
